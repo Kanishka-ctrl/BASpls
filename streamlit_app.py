@@ -3,59 +3,36 @@ import tensorflow as tf
 from PIL import Image
 import numpy as np
 
-# Dictionary to map class indices to disease names
-class_dict = {
-    0: 'Tomato Bacterial spot',
-    1: 'Tomato Early blight',
-    2: 'Tomato Late blight',
-    3: 'Tomato Leaf Mold',
-    4: 'Tomato Septoria leaf spot',
-    5: 'Tomato Spider mites Two-spotted spider mite',
-    6: 'Tomato Target Spot',
-    7: 'Tomato Tomato Yellow Leaf Curl Virus',
-    8: 'Tomato Tomato mosaic virus',
-    9: 'Tomato healthy'
-}
+# Load your trained model (update the path to your model file)
+model = tf.keras.models.load_model('path/to/your/model.h5')
 
-# Function to preprocess the image
-def prepare_image(image):
-    image = image / 255.0
-    return np.expand_dims(image, axis=0)
+@st.cache
+def preprocess_image(image):
+    """Preprocess the uploaded image for prediction."""
+    img = image.resize((224, 224))  # Adjust size according to your model's input size
+    img_array = np.array(img) / 255.0  # Normalize image data
+    img_array = np.expand_dims(img_array, axis=0)  # Add batch dimension
+    return img_array
 
-# Function to predict the class of the tomato leaf
-def predict_class(image, model):
-    prediction = model.predict(image)
-    return class_dict[np.argmax(prediction)]
+@st.cache
+def predict_image(img_array):
+    """Predict the class of the image."""
+    predictions = model.predict(img_array)
+    return predictions
 
-# Load and preprocess the image
-@st.cache_data
-def load_image(image_file):
-    img = Image.open(image_file)
-    img = img.resize((128, 128))
-    img = tf.keras.preprocessing.image.img_to_array(img)
-    return img
+st.title("Tomato Disease Prediction")
+st.write("Upload an image of a tomato plant leaf to get the disease prediction.")
 
-# Main function to run the Streamlit app
-def main():
-    st.set_page_config(page_title="Tomato Disease Prediction", page_icon="🍅", layout="wide")
-    st.image("./img2.jpg", use_column_width=True)
-    st.title("Tomato Disease Prediction")
-    st.subheader("Upload a Tomato Leaf Image")
+uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
 
-    image_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
-
-    if image_file is not None:
-        img = load_image(image_file)
-        st.image(img, caption="Uploaded Image", use_column_width=True)
-        st.write("")
-        st.write("Classifying...")
-
-        with st.spinner('Loading model...'):
-            model = tf.keras.models.load_model("model_vgg19.h5")
-
-        image = prepare_image(img)
-        prediction = predict_class(image, model)
-        st.success(f"The tomato leaf is classified as: **{prediction}**")
-
-if __name__ == "__main__":
-    main()
+if uploaded_file is not None:
+    image = Image.open(uploaded_file)
+    st.image(image, caption='Uploaded Image', use_column_width=True)
+    
+    # Preprocess the image and make prediction
+    img_array = preprocess_image(image)
+    predictions = predict_image(img_array)
+    
+    # Display predictions
+    st.write("Predictions:")
+    st.write(predictions)
