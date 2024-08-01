@@ -9,7 +9,7 @@ st.write("Current Directory:", os.getcwd())
 st.write("Files in Directory:", os.listdir('.'))
 
 # Load your trained model (update the path to your model file)
-model_path = 'path/to/your/model.h5'
+model_path = 'model_vgg19.h5'
 if os.path.exists(model_path):
     model = tf.keras.models.load_model(model_path)
 else:
