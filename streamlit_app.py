@@ -4,7 +4,7 @@ from PIL import Image
 import numpy as np
 
 # Load your trained model (update the path to your model file)
-model = tf.keras.models.load_model('path/to/your/model.h5')
+model = tf.keras.models.load_model('model_vgg19.h5')
 
 @st.cache
 def preprocess_image(image):
