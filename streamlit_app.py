@@ -5,7 +5,7 @@ import numpy as np
 import io
 
 # Load your trained model (update the path to your model file)
-model_path = 'path/to/your/model.h5'
+model_path = 'model_vgg19.h5'
 try:
     model = tf.keras.models.load_model(model_path)
 except Exception as e:
